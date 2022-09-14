@@ -1,15 +1,46 @@
 import Header from "./components/Header"
 import Formulario from "./components/Formulario"
 import ListadoPacientes from "./components/ListadoPacientes"
+import { useState, useEffect } from 'react'
 
 function App() {
+
+  const [pacientes, setPacientes] = useState([]) //Arreglo vacio
+  const [paciente, setPaciente] = useState({}) // Objeto vacio
+
+  //Este esta primero ya que lo que queremos es que llegue primero todos los pacientes que ya están en el local storage, los cuales se guardaron en el segundo useEffect
+  useEffect(() => {
+    const obtenerLS = () => {
+      const pacientesLS = JSON.parse(localStorage.getItem('pacientes')) ?? []
+      setPacientes(pacientesLS)
+    }
+    obtenerLS()
+  }, [])
+
+  useEffect (() => {
+    localStorage.setItem('pacientes', JSON.stringify(pacientes))
+  }, [pacientes])
+
+  const eliminarPaciente = (id) => {
+    const pacientesActualizados = pacientes.filter( paciente => paciente.id !== id )
+    setPacientes(pacientesActualizados)
+  }
 
   return (
     <div className="container mx-auto mt-20">
       <Header />
       <div className="mt-12 md:flex">
-        <Formulario className />
-        <ListadoPacientes />
+        <Formulario
+          pacientes={pacientes}
+          setPacientes={setPacientes}
+          paciente={paciente}
+          setPaciente={setPaciente}
+        />
+        <ListadoPacientes 
+          pacientes={pacientes}
+          setPaciente={setPaciente}
+          eliminarPaciente={eliminarPaciente}       
+        />
       </div>
     </div>
   )
